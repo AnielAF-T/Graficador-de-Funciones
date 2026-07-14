@@ -1,47 +1,83 @@
-# 📈 Graficador de Funciones
+# Graficador Universal AF
 
-Aplicación de escritorio en Python para graficar múltiples funciones
-matemáticas de forma simultánea, con interfaz gráfica interactiva.
+Aplicación de escritorio en Python para graficar y comparar múltiples funciones matemáticas de forma interactiva. Permite escribir expresiones simbólicas, detectar automáticamente sus variables, ajustar parámetros en tiempo real y explorar la gráfica con un zoom estilo MATLAB.
 
-![Demo del graficador](docs/imagenes/demo1.png)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![Tkinter](https://img.shields.io/badge/GUI-Tkinter-informational)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 ## ✨ Características
 
-- Grafica **varias funciones a la vez** en el mismo plano
-- Interfaz gráfica intuitiva con tkinter
-- Cada funcion se grafica de un color diferente
-- modificas los tiempos, el numero de puntos, etc.
+- **Parser simbólico con SymPy**: escribe expresiones matemáticas como `sin(x)*exp(-t)` o `x(t) = A*cos(w*t + phi)`; el programa reconoce automáticamente qué nombres son funciones (`sin`, `cos`, `exp`, `sqrt`, `log`, etc.) y cuáles son variables.
+- **Múltiples funciones a la vez**: agrega, edita y elimina expresiones desde una lista, y selecciona cuáles se grafican simultáneamente para compararlas.
+- **Cuadro de edición amplio**: los diálogos para agregar y editar funciones usan un área de texto grande, ideal para expresiones largas.
+- **Detección automática de variables**: identifica los símbolos usados en las funciones y genera campos de entrada para cada parámetro, conservando los valores ya ingresados al cambiar la variable independiente.
+- **Zoom estilo MATLAB**: 
+  - Zoom centrado en el cursor con la rueda del mouse.
+  - Casilla opcional **"Proporción X:Y fija"** (equivalente a `axis equal` de MATLAB) para que las curvas no se vean deformadas al acercar o alejar la vista.
+- **Etiquetas interactivas opcionales**: al marcar la casilla **"Activar etiquetas al hacer clic"**, cada clic sobre la gráfica coloca un punto numerado con sus coordenadas (X, Y); si la casilla está desmarcada, los clics no generan etiquetas. Hasta 12 etiquetas simultáneas, listadas debajo de la gráfica y eliminables individualmente.
+- **Estadísticas automáticas**: máximo, mínimo y RMS de cada función graficada, mostrados al pie de la gráfica.
+- **Exportación**:
+  - A **Excel (.xlsx)** con los datos numéricos de cada curva.
+  - A **PNG** en alta resolución (300 dpi).
+- **Barra de herramientas de Matplotlib** integrada (pan, zoom por recuadro, guardar, etc.).
 
-## 🛠️ Tecnologías
+## 📦 Requisitos
 
-Python · matplotlib · numpy · tkinter
+- Python 3.9 o superior
+- Bibliotecas:
+  - `numpy`
+  - `pandas`
+  - `sympy`
+  - `matplotlib`
+  - `openpyxl` (usada internamente por `pandas` para exportar a `.xlsx`)
+  - `tkinter` (incluida en la mayoría de las distribuciones de Python; en Linux puede requerir instalación aparte, por ejemplo `sudo apt install python3-tk`)
 
-## 📦 Instalación
+## 🚀 Instalación
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/AnielAlfonso-tech/graficador-de-funciones.git
-cd graficador-de-funciones
-
-# Instalar dependencias
-pip install -r requirements.txt
+git clone https://github.com/tu-usuario/graficador-universal.git
+cd graficador-universal
+pip install numpy pandas sympy matplotlib openpyxl
 ```
 
-## 🚀 Uso
+## ▶️ Uso
 
 ```bash
-python graficador.py
+python graficador_universal.py
 ```
 
-1. Escribe una o más funciones (ej. `sin(x)`, `x**2`, `cos(x)+1`)
-2. <Ajusta el rango / presiona Graficar / etc.>
-3. ¡Listo!
+1. Haz clic en **Agregar** y escribe una o varias expresiones separadas por comas (por ejemplo `sin(x), cos(x)*exp(-x/5)`).
+2. Presiona **Detectar variables** para que el programa identifique las variables y genere sus campos de valor.
+3. Elige la **variable independiente** y asigna valores a los demás parámetros.
+4. Define **Inicio**, **Fin** y **Puntos** del rango de graficado.
+5. Presiona **Graficar**.
+6. Opcionalmente:
+   - Activa **"Activar etiquetas al hacer clic"** para marcar puntos de interés sobre la curva.
+   - Activa **"Proporcion X:Y fija (estilo MATLAB)"** para conservar la forma real de las curvas al hacer zoom.
+   - Usa la rueda del mouse sobre la gráfica para acercar o alejar la vista.
+7. Exporta los resultados con los botones **Excel** o **PNG**.
 
-## 🖼️ Capturas
+## 🖱️ Controles de la gráfica
 
-![Vista 1](docs/imagenes/demo1.png)
-![Vista 2](docs/imagenes/demo2.png)
+| Acción | Resultado |
+|---|---|
+| Rueda del mouse sobre la gráfica | Zoom centrado en el cursor |
+| Clic izquierdo (con etiquetas activadas) | Agrega una etiqueta numerada con sus coordenadas |
+| Botón "X" en el listado de etiquetas | Elimina esa etiqueta específica |
+| Barra de herramientas inferior | Pan, zoom por recuadro, guardar imagen, restablecer vista |
 
-## 👤 Autor
+## 📁 Estructura del proyecto
 
-**Aniel AF** — [@AnielAlfonso-tech](https://github.com/AnielAlfonso-tech)
+```
+graficador_universal.py   # Código fuente principal
+README.md                 # Este archivo
+```
+
+## 🤝 Contribuciones
+
+Las sugerencias, reportes de errores y pull requests son bienvenidos. Abre un *issue* describiendo el cambio propuesto antes de enviar un PR grande.
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
