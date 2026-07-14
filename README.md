@@ -1,7 +1,6 @@
 # Graficador Universal AF
 
-Aplicación de escritorio en Python para graficar y comparar múltiples funciones matemáticas de forma interactiva. Permite escribir expresiones simbólicas, detectar automáticamente sus variables, ajustar parámetros en tiempo real y explorar la gráfica con un zoom estilo MATLAB.
-
+Aplicación de escritorio en Python para graficar y comparar múltiples funciones matemáticas de forma interactiva. Permite escribir expresiones simbólicas, detectar automáticamente sus variables, ajustar parámetros en tiempo real y explorar la gráfica.
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Tkinter](https://img.shields.io/badge/GUI-Tkinter-informational)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -10,13 +9,11 @@ Aplicación de escritorio en Python para graficar y comparar múltiples funcione
 
 - **Parser simbólico con SymPy**: escribe expresiones matemáticas como `sin(x)*exp(-t)` o `x(t) = A*cos(w*t + phi)`; el programa reconoce automáticamente qué nombres son funciones (`sin`, `cos`, `exp`, `sqrt`, `log`, etc.) y cuáles son variables.
 - **Múltiples funciones a la vez**: agrega, edita y elimina expresiones desde una lista, y selecciona cuáles se grafican simultáneamente para compararlas.
-- **Cuadro de edición amplio**: los diálogos para agregar y editar funciones usan un área de texto grande, ideal para expresiones largas.
 - **Detección automática de variables**: identifica los símbolos usados en las funciones y genera campos de entrada para cada parámetro, conservando los valores ya ingresados al cambiar la variable independiente.
-- **Zoom estilo MATLAB**: 
-  - Zoom centrado en el cursor con la rueda del mouse.
-  - Casilla opcional **"Proporción X:Y fija"** (equivalente a `axis equal` de MATLAB) para que las curvas no se vean deformadas al acercar o alejar la vista.
+- **Zoom sin distorsión**: la proporción real entre los ejes X e Y queda fija automáticamente después de cada trazado. No importa qué herramienta se use para acercar, alejar o desplazar la vista —la rueda del mouse, el recuadro de zoom o el modo de desplazamiento (pan) de la barra de herramientas—: Matplotlib siempre corrige los límites para conservar la forma real de las curvas, igual que `axis equal` en MATLAB.
 - **Etiquetas interactivas opcionales**: al marcar la casilla **"Activar etiquetas al hacer clic"**, cada clic sobre la gráfica coloca un punto numerado con sus coordenadas (X, Y); si la casilla está desmarcada, los clics no generan etiquetas. Hasta 12 etiquetas simultáneas, listadas debajo de la gráfica y eliminables individualmente.
-- **Estadísticas automáticas**: máximo, mínimo y RMS de cada función graficada, mostrados al pie de la gráfica.
+- **Estadísticas automáticas**: máximo, mínimo y RMS de cada función graficada, mostrados al pie de la gráfica con un máximo de 2 decimales (sin ceros sobrantes).
+- **Cuadrícula tipo papel milimetrado**: líneas de división principales y secundarias en gris, para ubicar valores con más precisión visual.
 - **Exportación**:
   - A **Excel (.xlsx)** con los datos numéricos de cada curva.
   - A **PNG** en alta resolución (300 dpi).
