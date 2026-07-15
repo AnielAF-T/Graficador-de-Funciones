@@ -51,9 +51,9 @@ python graficador_universal.py
 5. Presiona **Graficar**.
 6. Opcionalmente:
    - Activa **"Activar etiquetas al hacer clic"** para marcar puntos de interés sobre la curva.
-   - Activa **"Proporcion X:Y fija (estilo MATLAB)"** para conservar la forma real de las curvas al hacer zoom.
    - Usa la rueda del mouse sobre la gráfica para acercar o alejar la vista.
-7. Exporta los resultados con los botones **Excel** o **PNG**.
+7. Exporta los resultados con los botones **Excel** o **PNG**, o si los requieres guardalas con otra extencion
+   ("grafica.fig" - "grafica.eps" - "grafica.svg")
 
 ## 🖱️ Controles de la gráfica
 
@@ -67,6 +67,7 @@ python graficador_universal.py
 ## 📁 Estructura del proyecto
 
 ```
+Imagenes                  # fotos del programa
 graficador_universal.py   # Código fuente principal
 README.md                 # Este archivo
 ```
