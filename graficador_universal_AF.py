@@ -1,3 +1,7 @@
+"""Graficador universal de funciones
+
+by: Aniel AF"""
+
 import re
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
@@ -110,7 +114,7 @@ class GraficadorUniversal:
 
     def __init__(self, ventana):
         self.ventana = ventana
-        self.ventana.title("Graficador Universal AF")
+        self.ventana.title("Graficador Universal by: Aniel AF")
 
         # La ventana intenta abrirse maximizada; si el sistema operativo
         # no soporta el método correspondiente, se aplica una alternativa.
