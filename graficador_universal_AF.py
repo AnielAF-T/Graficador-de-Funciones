@@ -15,18 +15,14 @@ from matplotlib.widgets import Cursor
 from matplotlib.ticker import FuncFormatter, AutoMinorLocator
 import matplotlib.pyplot as plt
 
-# El programa intenta aplicar un estilo visual moderno a todas las
-# figuras de Matplotlib; si el estilo preferido no existe en el
-# entorno, se recurre a una alternativa equivalente.
+# se incluyen las librerias necesarias y se aplica un estilo visual a las graficas
 try:
     plt.style.use("seaborn-v0_8-darkgrid")
 except Exception:
     plt.style.use("ggplot")
 
 
-# El diccionario reúne únicamente los nombres que deben interpretarse
-# como funciones matemáticas o constantes conocidas. Cualquier otro
-# identificador que aparezca en una expresión se trata como variable.
+# diccionario de funciones y constantes matematicas permitidas
 PERMITIDOS = {
     'sin': sin, 'cos': cos, 'tan': tan,
     'asin': asin, 'acos': acos, 'atan': atan,
@@ -37,9 +33,6 @@ PERMITIDOS = {
 
 
 def construir_local(texto):
-    """La función arma el diccionario de símbolos locales que sympy
-    utilizará para interpretar una expresión. Todo nombre detectado
-    que no pertenezca a PERMITIDOS se registra como un Symbol nuevo."""
     nombres = set(re.findall(r'[A-Za-z_][A-Za-z0-9_]*', texto))
     local = dict(PERMITIDOS)
     for n in nombres:
@@ -49,15 +42,11 @@ def construir_local(texto):
 
 
 def parsear(texto):
-    """La función traduce una cadena de texto a una expresión simbólica
-    de sympy, apoyándose en el diccionario construido dinámicamente."""
     return parse_expr(texto, local_dict=construir_local(texto),
                       transformations=standard_transformations)
 
 
 def limpiar_expresion(texto):
-    """La función elimina la parte "nombre(args) =" o "nombre =" que el
-    usuario pudiera anteponer, dejando solo la expresión matemática."""
     texto = texto.strip()
     if "=" in texto:
         texto = texto.split("=", 1)[1].strip()
@@ -65,9 +54,7 @@ def limpiar_expresion(texto):
 
 
 def separar_funciones(texto):
-    """La función separa varias expresiones escritas en una sola línea,
-    respetando los paréntesis para no cortar comas internas de una
-    función. Por ejemplo, 'f(a,b), g(c)' se convierte en ['f(a,b)', 'g(c)']."""
+    # separa varias funciones escritas en una sola linea sin romper parentesis
     partes = []
     actual = ""
     nivel = 0
@@ -86,9 +73,6 @@ def separar_funciones(texto):
 
 
 def _formato_origen(valor, _pos):
-    """La función formatea las etiquetas del eje Y, ocultando el cero
-    para evitar que se superponga con el cero del eje X, y presentando
-    los números enteros sin decimales innecesarios."""
     if abs(valor) < 1e-9:
         return ""
     if float(valor).is_integer():
@@ -97,10 +81,6 @@ def _formato_origen(valor, _pos):
 
 
 def formatear_numero(valor, decimales=2):
-    """La función redondea un valor numérico a un máximo de dos
-    decimales y elimina los ceros sobrantes al final, de modo que un
-    número entero se muestre sin punto decimal y uno fraccionario
-    nunca exceda la cantidad de decimales indicada."""
     texto = f"{valor:.{decimales}f}"
     if "." in texto:
         texto = texto.rstrip("0").rstrip(".")
@@ -108,16 +88,11 @@ def formatear_numero(valor, decimales=2):
 
 
 class GraficadorUniversal:
-    """La clase encapsula toda la interfaz gráfica y la lógica de
-    trazado del programa, incluyendo el manejo de funciones, variables,
-    etiquetas interactivas, zoom estilo MATLAB y exportación de datos."""
 
     def __init__(self, ventana):
         self.ventana = ventana
         self.ventana.title("Graficador Universal by: Aniel AF")
 
-        # La ventana intenta abrirse maximizada; si el sistema operativo
-        # no soporta el método correspondiente, se aplica una alternativa.
         try:
             self.ventana.state("zoomed")
         except Exception:
@@ -132,21 +107,16 @@ class GraficadorUniversal:
         self.variables_detectadas = []
         self.texto_info = ""
 
-        # La lista guarda cada etiqueta colocada sobre la gráfica como
-        # un diccionario con el punto, la anotación y sus coordenadas.
+        # lista de etiquetas colocadas sobre la grafica
         self.etiquetas = []
 
-        # La referencia permite borrar el texto de estadísticas anterior
-        # antes de dibujar uno nuevo, evitando que se acumulen textos.
         self.texto_stats = None
 
         self.crear_interfaz()
 
     def crear_interfaz(self):
 
-        # El panel izquierdo agrupa todos los controles dentro de un
-        # área con desplazamiento vertical, para que quepan aunque la
-        # ventana se reduzca de tamaño.
+        # panel izquierdo con controles y desplazamiento vertical
         contenedor_izq = ttk.Frame(self.ventana)
         contenedor_izq.pack(side="left", fill="y", padx=5, pady=5)
 
@@ -169,8 +139,7 @@ class GraficadorUniversal:
             canvas_scroll.itemconfig(ventana_interna, width=event.width)
         canvas_scroll.bind("<Configure>", ajustar_ancho)
 
-        # El desplazamiento con la rueda del mouse se limita al panel
-        # izquierdo, para no interferir con el zoom de la gráfica.
+        # funcion de desplazamiento con el mouse limitada al panel izquierdo
         def rueda(event):
             canvas_scroll.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
@@ -248,9 +217,6 @@ class GraficadorUniversal:
         ttk.Button(fila, text="PNG", width=10,
                    command=self.guardar_png).pack(side="left", expand=True, padx=2)
 
-        # El conjunto de casillas controla comportamientos opcionales:
-        # visibilidad del cursor, activación de etiquetas por clic y
-        # bloqueo de la proporción X:Y al hacer zoom.
         self.usar_cursor = tk.BooleanVar(value=True)
         ttk.Checkbutton(panel, text="Mostrar cursor",
                         variable=self.usar_cursor,
@@ -265,9 +231,7 @@ class GraficadorUniversal:
         contenedor = ttk.Frame(self.ventana)
         contenedor.pack(side="right", fill="both", expand=True)
 
-        # El listado de etiquetas se ubica en la parte superior, con
-        # espacio suficiente para mostrar hasta doce entradas repartidas
-        # en cuatro columnas.
+        # listado de etiquetas en cuatro columnas, hasta doce entradas
         marco_lista_etq = ttk.LabelFrame(contenedor, text="Etiquetas (X, Y)")
         marco_lista_etq.pack(side="top", fill="x", padx=4, pady=4)
 
@@ -279,8 +243,7 @@ class GraficadorUniversal:
 
         NavigationToolbar2Tk(self.canvas, barra_frame)
 
-        # Cada celda combina una etiqueta de texto con un botón "X" que
-        # solo se hace visible cuando el mouse pasa por encima de ella.
+        # cada celda tiene un boton "X" visible solo al pasar el mouse
         self.celdas_etiquetas = []
         for col in range(4):
             columna = ttk.Frame(marco_lista_etq)
@@ -323,8 +286,6 @@ class GraficadorUniversal:
     #  Cursor
     # ----------------------------------------------------------------
     def alternar_cursor(self):
-        """El método muestra u oculta el cursor de referencia según el
-        estado actual de la casilla correspondiente."""
         self.cursor.visible = self.usar_cursor.get()
         self.canvas.draw_idle()
 
@@ -332,13 +293,7 @@ class GraficadorUniversal:
     #  Zoom con la rueda del mouse
     # ----------------------------------------------------------------
     def zoom_rueda(self, event):
-        """El método acerca o aleja la vista de la gráfica cuando el
-        usuario gira la rueda del mouse. Mantiene fijo el punto que se
-        encuentra bajo el cursor y aplica siempre el mismo factor de
-        escala a los dos ejes, de modo que la relación entre el ancho y
-        el alto de la vista nunca cambia y las curvas jamás se ven
-        estiradas ni aplastadas al hacer zoom, tal como ocurre en
-        MATLAB."""
+        # zoom centrado en el cursor manteniendo la proporcion X:Y, estilo MATLAB
         if event.inaxes != self.ejes:
             return
 
@@ -369,10 +324,7 @@ class GraficadorUniversal:
     #  Etiquetas interactivas
     # ----------------------------------------------------------------
     def click_en_grafica(self, event):
-        """El método coloca una etiqueta numerada en el punto donde el
-        usuario hace clic, pero únicamente cuando la casilla "Activar
-        etiquetas al hacer clic" está marcada; de lo contrario el clic
-        se ignora por completo."""
+        # coloca una etiqueta numerada al hacer clic, solo si esta activada la opcion
         if not self.activar_etiquetas.get():
             return
         if event.inaxes != self.ejes:
@@ -411,15 +363,11 @@ class GraficadorUniversal:
         self.canvas.draw_idle()
 
     def _hover_celda(self, celda, dentro):
-        """El método muestra el botón "X" únicamente cuando el mouse
-        está sobre una celda que efectivamente contiene una etiqueta."""
         i = self.celdas_etiquetas.index(celda)
         tiene_contenido = i < len(self.etiquetas)
         celda["equis"].config(text="X" if (dentro and tiene_contenido) else "")
 
     def actualizar_listado_etiquetas(self):
-        """El método vuelve a llenar las doce celdas del listado inferior
-        en el mismo orden en que fueron creadas las etiquetas."""
         for i, celda in enumerate(self.celdas_etiquetas):
             if i < len(self.etiquetas):
                 e = self.etiquetas[i]
@@ -430,8 +378,6 @@ class GraficadorUniversal:
             celda["equis"].config(text="")
 
     def borrar_etiqueta(self, indice):
-        """El método elimina una etiqueta específica y renumera las
-        etiquetas restantes para mantener la secuencia consecutiva."""
         if indice >= len(self.etiquetas):
             return
         e = self.etiquetas.pop(indice)
@@ -448,7 +394,6 @@ class GraficadorUniversal:
         self.canvas.draw_idle()
 
     def borrar_todas_etiquetas(self):
-        """El método retira todas las etiquetas presentes en la gráfica."""
         for e in self.etiquetas:
             try:
                 e["punto"].remove()
@@ -463,8 +408,6 @@ class GraficadorUniversal:
     #  Manejo de funciones
     # ----------------------------------------------------------------
     def agregar_funcion(self):
-        """El método solicita una o varias expresiones al usuario y las
-        agrega a la lista únicamente si logran interpretarse con éxito."""
         texto = self._dialogo_funcion("Agregar funcion")
         if not texto:
             return
@@ -482,9 +425,6 @@ class GraficadorUniversal:
                 )
 
     def editar_funcion(self):
-        """El método permite modificar la expresión seleccionada usando
-        el mismo cuadro de texto amplio que se emplea para agregar
-        funciones nuevas, lo que facilita revisar expresiones largas."""
         seleccion = self.lista.curselection()
         if len(seleccion) != 1:
             messagebox.showwarning(
@@ -512,10 +452,7 @@ class GraficadorUniversal:
         self.lista.selection_set(indice)
 
     def _dialogo_funcion(self, titulo, texto_inicial=""):
-        """El método construye un cuadro de diálogo amplio y reutilizable
-        para escribir o modificar expresiones matemáticas. El área de
-        texto es más grande que la de un cuadro de diálogo estándar,
-        lo que permite ver por completo expresiones largas."""
+        # cuadro de dialogo reutilizable para escribir o editar expresiones
         dialogo = tk.Toplevel(self.ventana)
         dialogo.title(titulo)
         ancho, alto = 560, 280
@@ -561,7 +498,6 @@ class GraficadorUniversal:
         return resultado["texto"]
 
     def eliminar_funcion(self):
-        """El método borra de la lista todas las funciones seleccionadas."""
         seleccion = list(self.lista.curselection())
         seleccion.reverse()
         for i in seleccion:
@@ -571,9 +507,6 @@ class GraficadorUniversal:
     #  Variables
     # ----------------------------------------------------------------
     def detectar_variables(self):
-        """El método recorre todas las funciones cargadas, identifica
-        los símbolos que contienen y construye los campos de entrada
-        correspondientes a cada parámetro detectado."""
         variables = set()
 
         for funcion in self.lista.get(0, tk.END):
@@ -606,8 +539,6 @@ class GraficadorUniversal:
         )
 
     def construir_caja_variables(self):
-        """El método reconstruye el panel de variables, conservando los
-        valores previamente ingresados por el usuario cuando es posible."""
         valores_previos = {}
         for nombre, entrada in self.entradas_variables.items():
             try:
@@ -638,8 +569,6 @@ class GraficadorUniversal:
         self.dibujar_parametros(valores_previos)
 
     def refrescar_parametros(self, valores_previos):
-        """El método actualiza los campos de parámetros cuando el usuario
-        cambia la variable independiente seleccionada."""
         for nombre, entrada in self.entradas_variables.items():
             try:
                 valores_previos[nombre] = entrada.get()
@@ -648,8 +577,6 @@ class GraficadorUniversal:
         self.dibujar_parametros(valores_previos)
 
     def dibujar_parametros(self, valores_previos):
-        """El método crea un campo de entrada por cada variable detectada,
-        exceptuando la que fue elegida como variable independiente."""
         for widget in self.marco_parametros.winfo_children():
             widget.destroy()
         self.entradas_variables.clear()
@@ -668,8 +595,6 @@ class GraficadorUniversal:
             self.entradas_variables[variable] = entrada
 
     def obtener_valores_variables(self):
-        """El método recopila en un diccionario los valores numéricos
-        que el usuario asignó a cada parámetro."""
         datos = {}
         for nombre, entrada in self.entradas_variables.items():
             datos[nombre] = float(entrada.get())
@@ -679,9 +604,6 @@ class GraficadorUniversal:
     #  Graficar
     # ----------------------------------------------------------------
     def graficar(self):
-        """El método traza todas las funciones seleccionadas dentro del
-        rango indicado, calcula sus estadísticas básicas y actualiza la
-        gráfica junto con el panel de información inferior."""
         try:
             seleccionadas = self.lista.curselection()
             if not seleccionadas:
@@ -705,9 +627,7 @@ class GraficadorUniversal:
             parametros = self.obtener_valores_variables()
 
             self.ejes.clear()
-            # Al limpiar los ejes se eliminan también los puntos y las
-            # anotaciones dibujados previamente, por lo que la lista de
-            # etiquetas y su listado inferior se reinician en conjunto.
+            # al limpiar los ejes tambien se reinician las etiquetas y su listado
             self.etiquetas.clear()
             self.actualizar_listado_etiquetas()
 
@@ -755,15 +675,7 @@ class GraficadorUniversal:
                 except Exception:
                     pass
 
-            # La proporción entre los ejes se fija en función del ancho
-            # y el alto de la figura y del rango de datos trazado, de
-            # modo que la forma de las curvas se conserve sin importar
-            # qué herramienta use el usuario para hacer zoom o
-            # desplazarse: la rueda del mouse, el recuadro de zoom de la
-            # barra de herramientas o el modo de desplazamiento (pan).
-            # Con "adjustable='datalim'", Matplotlib recalcula los
-            # límites cada vez que cambian para respetar siempre esta
-            # misma proporción, igual que "axis equal" en MATLAB.
+            # se fija la proporcion entre ejes para que el zoom no deforme las curvas
             rango_x = fin - inicio
             if y_min_global is not None and y_max_global is not None:
                 rango_y = y_max_global - y_min_global
@@ -776,9 +688,6 @@ class GraficadorUniversal:
             else:
                 self.ejes.set_aspect("auto")
 
-            # La cuadrícula se dibuja en gris, combinando líneas
-            # principales y secundarias, para que la gráfica se vea
-            # dividida en recuadros como en el papel milimetrado.
             self.ejes.xaxis.set_minor_locator(AutoMinorLocator())
             self.ejes.yaxis.set_minor_locator(AutoMinorLocator())
             self.ejes.grid(True, which="major", color="gray",
@@ -792,13 +701,9 @@ class GraficadorUniversal:
             self.ejes.spines["top"].set_visible(False)
             self.ejes.spines["right"].set_visible(False)
 
-            # El formateador del eje Y se pierde cada vez que se limpian
-            # los ejes, por lo que se vuelve a asignar tras cada trazado.
             self.ejes.yaxis.set_major_formatter(FuncFormatter(_formato_origen))
 
-            # El texto de estadísticas anterior se elimina antes de crear
-            # uno nuevo, ya que figura.text() no se borra junto con los
-            # ejes y de lo contrario se iría acumulando.
+            # se elimina el texto de estadisticas anterior antes de crear uno nuevo
             if self.texto_stats is not None:
                 try:
                     self.texto_stats.remove()
@@ -827,8 +732,6 @@ class GraficadorUniversal:
     #  Exportacion
     # ----------------------------------------------------------------
     def exportar_excel(self):
-        """El método guarda los datos actualmente graficados en un
-        archivo de Excel elegido por el usuario."""
         ruta = filedialog.asksaveasfilename(defaultextension=".xlsx")
         if not ruta:
             return
@@ -842,7 +745,6 @@ class GraficadorUniversal:
         messagebox.showinfo("Correcto", "Archivo exportado")
 
     def guardar_png(self):
-        """El método exporta la gráfica actual como una imagen PNG."""
         ruta = filedialog.asksaveasfilename(defaultextension=".png")
         if ruta:
             self.figura.savefig(ruta, dpi=300)
